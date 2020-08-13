@@ -1,0 +1,8 @@
+ansible-playbook -i inventory playbook.yml -K
+or
+ansible-playbook -i inventory playbook.yml --private-key webserver001_key.pem
+
+Notice:
+webserver001_key.pem is only an example.
+
+

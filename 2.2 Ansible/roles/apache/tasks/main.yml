@@ -1,0 +1,18 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: dpkg
+      command: dpkg --configure -a
+    - name: update
+      command: apt-get -y update
+    - name: install apache2
+      command: apt-get -y install apache2
+    - name: modify permission
+      command: chmod o+w /var/www/html/index.html
+    - name: update html
+      command: echo \<center\>\<h1\>Hello Plexure \!\</h1\>\<br/\>\</center\> > /var/www/html/index.html
+    - name: roll back permission
+      command: chmod o-w /var/www/html/index.html
+    - name: restart Apache
+      command: apachectl restart

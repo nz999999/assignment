@@ -1,0 +1,2 @@
+[webserver]
+ansibleclient01 ansible_host=13.76.180.1 ansible_port=22
