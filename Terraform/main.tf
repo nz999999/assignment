@@ -36,21 +36,9 @@ resource "azurerm_subnet" "plexuresubnet" {
     address_prefixes       = ["10.0.1.0/24"]
 }
 
-# Create public IPs
-resource "azurerm_public_ip" "plexurepublicip" {
-    name                         = "${var.resource_group_name}.public.ip"
-    location                     = azurerm_resource_group.plexurerg.location
-    resource_group_name          = azurerm_resource_group.plexurerg.name
-    allocation_method            = "Static"
-
-    tags = {
-        environment = var.env_tag
-    }
-}
-
 # Create Network Security Group and rule
 resource "azurerm_network_security_group" "plexurensg" {
-    name                = "${var.resource_group_name}.nsg"
+    name                = "webserver.nsg"
     location            = azurerm_resource_group.plexurerg.location
     resource_group_name = azurerm_resource_group.plexurerg.name
     
@@ -81,18 +69,11 @@ resource "azurerm_network_interface" "plexurenic" {
         name                          = "${var.resource_group_name}.nic.ip"
         subnet_id                     = azurerm_subnet.plexuresubnet.id
         private_ip_address_allocation = "Dynamic"
-        public_ip_address_id          = azurerm_public_ip.plexurepublicip.id
     }
 
     tags = {
         environment = var.env_tag
     }
-}
-
-# Associate nsg and nic
-resource "azurerm_network_interface_security_group_association" "plexurensginc" {
-    network_interface_id      = azurerm_network_interface.plexurenic.id
-    network_security_group_id = azurerm_network_security_group.plexurensg.id
 }
 
 # Generate random text for a unique storage account name
@@ -229,4 +210,23 @@ resource "azurerm_virtual_machine_extension" "plexureapache" {
         "commandToExecute": "sh install_apache.sh"
     }
     SETTINGS
+}
+
+# Associate nsg and subnet
+resource "azurerm_subnet_network_security_group_association" "plexureassnet" {
+  subnet_id                 = azurerm_subnet.plexuresubnet.id
+  network_security_group_id = azurerm_network_security_group.plexurensg.id
+}
+
+# Create asg
+resource "azurerm_application_security_group" "plexureasg" {
+  name                = "${var.resource_group_name}.asg"
+  location            = azurerm_resource_group.plexurerg.location
+  resource_group_name = azurerm_resource_group.plexurerg.name
+}
+
+# Associate asg to nic
+resource "azurerm_network_interface_application_security_group_association" "plexureassnic" {
+  network_interface_id          = azurerm_network_interface.plexurenic.id
+  application_security_group_id = azurerm_application_security_group.plexureasg.id
 }
