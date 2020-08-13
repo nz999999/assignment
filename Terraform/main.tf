@@ -225,7 +225,7 @@ resource "azurerm_virtual_machine_extension" "plexureapache" {
 
     settings = <<SETTINGS
     {
-        "fileUris": ["https://raw.githubusercontent.com/nz999999/WebServer/master/2.1%20Terraform/install_apache.sh"],
+        "fileUris": ["https://raw.githubusercontent.com/nz999999/assignment/master/Terraform/install_apache.sh"],
         "commandToExecute": "sh install_apache.sh"
     }
     SETTINGS
